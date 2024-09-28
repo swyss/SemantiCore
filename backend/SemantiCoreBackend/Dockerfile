@@ -1,28 +1,30 @@
 # Build Stage
 FROM maven:3.9.4-eclipse-temurin-21-alpine AS build
 
+# Set working directory inside the container
 WORKDIR /app
 
-# Kopiere pom.xml und lade Abhängigkeiten
+# Copy the Maven configuration file (pom.xml) and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Kopiere den Rest des Codes
+# Copy the source code into the container
 COPY src ./src
 
-# Baue die Anwendung
+# Build the application, skipping tests
 RUN mvn package -DskipTests
 
 # Runtime Stage
 FROM eclipse-temurin:21-jdk
 
+# Set working directory for the runtime container
 WORKDIR /app
 
-# Kopiere das gebaute JAR aus dem vorherigen Schritt
-COPY --from=build /app/target/semanticore-0.0.1-SNAPSHOT.jar app.jar
+# Copy the built JAR file from the previous build stage
+COPY --from=build /app/target/semanticore.jar app.jar
 
-# Exponiere Port 8080
+# Expose port 8080 for the Spring Boot application
 EXPOSE 8080
 
-# Starte die Anwendung
+# Define the entry point to start the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

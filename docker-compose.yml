@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Service for the Application
+  semanticore-db:
+    image: postgres:latest
+    container_name: semanticore-db
+    restart: always
+    environment:
+      POSTGRES_DB: semanticore_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - semanticore-network
+
+  # Apache Pulsar Service
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    container_name: pulsar
+    command: bin/pulsar standalone
+    ports:
+      - "6650:6650"  # Pulsar broker port
+      - "8081:8081"  # Pulsar admin web port (changed to avoid conflict with backend)
+    networks:
+      - semanticore-network
+
+  # Backend Service (Spring Boot)
+  semanticore-backend:
+    build:
+      context: ./backend/SemantiCoreBackend/
+      dockerfile: Dockerfile
+    container_name: semanticore-backend
+    restart: always
+    ports:
+      - "8080:8080"  # Spring Boot backend running on port 8080
+    depends_on:
+      - semanticore-db
+      - pulsar
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://semanticore-db:5432/semanticore_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      PULSAR_SERVICE_URL: pulsar://pulsar:6650
+    networks:
+      - semanticore-network
+
+  # Frontend Service (Vue.js)
+  semanticore-frontend:
+    build:
+      context: ./frontend/SemantiCoreFrontend/
+      dockerfile: Dockerfile
+    container_name: semanticore-frontend
+    restart: always
+    ports:
+      - "3000:80"  # Expose Vue.js frontend on port 3000
+    depends_on:
+      - semanticore-backend
+    networks:
+      - semanticore-network
+
+volumes:
+  db_data:
+
+networks:
+  semanticore-network:
