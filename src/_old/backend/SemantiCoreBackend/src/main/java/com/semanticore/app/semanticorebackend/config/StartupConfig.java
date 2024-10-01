@@ -1,4 +1,4 @@
-package com.semanticore.app.semanticorebackend.startup;
+package com.semanticore.app.semanticorebackend.config;
 
 
 import org.fusesource.jansi.AnsiConsole;
@@ -26,7 +26,8 @@ public class StartupConfig {
     public ApplicationRunner displayStartupSequence() {
         return args -> {
             AnsiConsole.systemInstall(); // Enable color support for the console
-
+            // Print application welcome message with color
+            printAsciiArt();
             // Start services first
             startServiceWithColor("H2 Database Connection", this::testH2DatabaseConnection);
             startServiceWithColor("Service1", null);
@@ -66,6 +67,18 @@ public class StartupConfig {
         } catch (Exception e) {
             System.out.println(ansi().fgRed().a("H2 Database connection failed: " + e.getMessage()).reset());
         }
+    }
+
+    // Function to print ASCII art
+    private void printAsciiArt() {
+        System.out.println(ansi().fgCyan().a(
+                "  _____                                 _  _____              \n" +
+                        " / ____|                               (_)/ ____|             \n" +
+                        "| (___   ___  ___ _   _ _ __ ___   __ _ _| |     ___  _ __ ___ \n" +
+                        " \\___ \\ / _ \\/ __| | | | '_ ` _ \\ / _` | | |    / _ \\| '__/ _ \\\n" +
+                        " ____) |  __/ (__| |_| | | | | | | (_| | | |___| (_) | | |  __/\n" +
+                        "|_____/ \\___|\\___|\\__,_|_| |_| |_|\\__,_|_|\\_____\\___/|_|  \\___|\n"
+        ).reset());
     }
 
     // Function to keep the application running until a stop command is issued

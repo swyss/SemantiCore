@@ -1,4 +1,4 @@
-package com.semanticore.app.semanticorebackend.startup;
+package com.semanticore.app.semanticorebackend.config;
 
 
 import org.springdoc.core.models.GroupedOpenApi;
