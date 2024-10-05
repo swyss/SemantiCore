@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: SemantiCoreBackend
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/semanticore_db
+    username: postgres
+    password: postgres #${DB_PASSWORD} # It's recommended to reference the password securely using environment variables.
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    user:
+      name: admin
+      password: secret  # Use an encrypted password or environment variable in production
+      role: BACKEND_ADMIN # Define the role for the user
+
+server:
+  port: 8088
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    # Set to DEBUG for more detailed logs if needed
+
+pulsar:
+  service-url: pulsar://localhost:6650
