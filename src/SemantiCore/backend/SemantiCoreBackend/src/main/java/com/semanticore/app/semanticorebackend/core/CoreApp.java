@@ -1,8 +1,8 @@
 package com.semanticore.app.semanticorebackend.core;
 
-import com.semanticore.app.semanticorebackend.core.services.utilities.CommonUtilities;
-import com.semanticore.app.semanticorebackend.core.services.utilities.ConsoleService;
-import com.semanticore.app.semanticorebackend.modules.ModuleStarter;
+import com.semanticore.app.semanticorebackend.core.starter.CoreServiceStarter;
+import com.semanticore.app.semanticorebackend.core.starter.ModuleStarter;
+import com.semanticore.app.semanticorebackend.core.utilities.ConsoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CoreApp {
 
+    private final CoreServiceStarter coreServiceStarter;
     private final ModuleStarter moduleStarter;
     private final ConsoleService consoleService;
 
@@ -18,20 +19,22 @@ public class CoreApp {
     private int serverPort;
 
     @Autowired
-    public CoreApp(ModuleStarter moduleStarter, ConsoleService consoleService) {
+    public CoreApp(CoreServiceStarter coreServiceStarter,
+                   ModuleStarter moduleStarter,
+                   ConsoleService consoleService) throws Exception {
+        this.coreServiceStarter = coreServiceStarter;
         this.moduleStarter = moduleStarter;
         this.consoleService = consoleService;
     }
 
+    // Start both core and module services
     public void start() {
         try {
-            // Display startup information with UUID and timestamp using CommonUtilities
-            String timestamp = CommonUtilities.getCurrentDate("yyyy-MM-dd HH:mm:ss");
-            String uuid = CommonUtilities.generateUUID();
-            System.out.println("Starting CoreApp at: " + timestamp + " with UUID: " + uuid);
+            consoleService.displayWithSpinner("Starting Core Services...", "yellow");
+            coreServiceStarter.startCoreServices();
+            consoleService.displaySuccess("Core Services started successfully", "green");
 
-            consoleService.displayWithSpinner("Initializing CoreApp...", "yellow");
-
+            consoleService.displayWithSpinner("Starting Module Services...", "yellow");
             // Start all modules
             moduleStarter.startAllModules();
 
@@ -50,20 +53,8 @@ public class CoreApp {
     }
 
     public void stop() {
-        // Display stop information with timestamp using CommonUtilities
-        String timestamp = CommonUtilities.getCurrentDate("yyyy-MM-dd HH:mm:ss");
-        System.out.println("Stopping CoreApp at: " + timestamp);
-
-        consoleService.displayWithSpinner("Stopping CoreApp services...", "yellow");
-
-        // Stop all modules
+        coreServiceStarter.stopCoreServices();
         moduleStarter.stopAllModules();
-
-        // Stop the spinner after modules stop
-        consoleService.stopSpinner();
-
-        // Log final stop status
-        consoleService.displaySuccess("CoreApp and all Modules stopped successfully!", "green");
     }
 
     private void displayEndpoints() {

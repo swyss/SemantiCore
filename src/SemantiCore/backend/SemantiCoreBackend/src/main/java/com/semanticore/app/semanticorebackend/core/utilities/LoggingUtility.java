@@ -1,4 +1,4 @@
-package com.semanticore.app.semanticorebackend.core.services.utilities;
+package com.semanticore.app.semanticorebackend.core.utilities;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class LoggingUtility {
     }
 
     // Log a debug message
-    public void logDebug(String message) {
+    public void logSuccess(String message) {
         consoleService.displaySuccess("[DEBUG]: " + message, "yellow");
     }
 
@@ -37,4 +37,5 @@ public class LoggingUtility {
     public void stopSpinner() {
         consoleService.stopSpinner();
     }
+
 }

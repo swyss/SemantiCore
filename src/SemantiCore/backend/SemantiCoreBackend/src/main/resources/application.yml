@@ -4,18 +4,63 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/semanticore_db
-    username: postgres
-    password: postgres #${DB_PASSWORD} # It's recommended to reference the password securely using environment variables.
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+    hikari:
+      maximum-pool-size: 10
   jpa:
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Andere Datenbanken für die spezifischen Module
+  databases:
+    analytics:
+      url: jdbc:postgresql://localhost:5432/analytics_db
+      username: analytics_user
+      password: analytics_password
+      driver-class-name: org.postgresql.Driver
+    dataIntegration:
+      url: jdbc:neo4j://localhost:7687
+      username: neo4j
+      password: neo4j_password
+      driver-class-name: org.neo4j.jdbc.Driver
+    dataStorage:
+      url: jdbc:postgresql://localhost:5432/datastorage_db
+      username: datastorage_user
+      password: datastorage_password
+      driver-class-name: org.postgresql.Driver
+    edgeDevice:
+      url: http://localhost:3030/fuseki/edgedevices
+      driver-class-name: org.apache.jena.jdbc.remote.RemoteDriver
+    eventProcessing:
+      url: http://localhost:3030/fuseki/eventprocessing
+      driver-class-name: org.apache.jena.jdbc.remote.RemoteDriver
+    monitoring:
+      url: jdbc:influxdb://localhost:8086/monitoring
+      username: influx_user
+      password: influx_password
+      driver-class-name: org.influxdb.InfluxDB
+    oeeCalculation:
+      url: jdbc:postgresql://localhost:5432/oee_db
+      username: oee_user
+      password: oee_password
+      driver-class-name: org.postgresql.Driver
+    scadaIntegration:
+      url: jdbc:postgresql://localhost:5432/scada_db
+      username: scada_user
+      password: scada_password
+      driver-class-name: org.postgresql.Driver
+
   security:
     user:
       name: admin
-      password: secret  # Use an encrypted password or environment variable in production
-      role: BACKEND_ADMIN # Define the role for the user
+      password: secret
+      role: BACKEND_ADMIN
 
 server:
   port: 8088
@@ -24,7 +69,6 @@ logging:
   level:
     root: INFO
     org.springframework: INFO
-    # Set to DEBUG for more detailed logs if needed
 
 pulsar:
   service-url: pulsar://localhost:6650

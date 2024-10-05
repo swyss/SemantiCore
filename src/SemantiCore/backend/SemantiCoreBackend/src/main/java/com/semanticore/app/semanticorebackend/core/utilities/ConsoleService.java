@@ -1,4 +1,4 @@
-package com.semanticore.app.semanticorebackend.core.services.utilities;
+package com.semanticore.app.semanticorebackend.core.utilities;
 
 import org.springframework.stereotype.Service;
 
@@ -48,23 +48,15 @@ public class ConsoleService {
     }
 
     private String applyColor(String message, String color) {
-        switch (color.toLowerCase()) {
-            case "yellow":
-                return "\033[0;33m" + message + "\033[0m";
-            case "green":
-                return "\033[0;32m" + message + "\033[0m";
-            case "red":
-                return "\033[0;31m" + message + "\033[0m";
-            case "blue":
-                return "\033[0;34m" + message + "\033[0m";
-            case "cyan":
-                return "\033[0;36m" + message + "\033[0m";
-            case "magenta":
-                return "\033[0;35m" + message + "\033[0m";
-            case "white":
-                return "\033[0;37m" + message + "\033[0m";
-            default:
-                return message; // No color
-        }
+        return switch (color.toLowerCase()) {
+            case "yellow" -> "\033[0;33m" + message + "\033[0m";
+            case "green" -> "\033[0;32m" + message + "\033[0m";
+            case "red" -> "\033[0;31m" + message + "\033[0m";
+            case "blue" -> "\033[0;34m" + message + "\033[0m";
+            case "cyan" -> "\033[0;36m" + message + "\033[0m";
+            case "magenta" -> "\033[0;35m" + message + "\033[0m";
+            case "white" -> "\033[0;37m" + message + "\033[0m";
+            default -> message; // No color
+        };
     }
 }

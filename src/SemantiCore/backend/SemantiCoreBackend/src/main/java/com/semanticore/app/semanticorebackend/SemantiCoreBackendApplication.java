@@ -22,7 +22,6 @@ public class SemantiCoreBackendApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Start CoreApp and all modules
         coreApp.start();
     }
 }

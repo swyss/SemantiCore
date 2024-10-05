@@ -7,4 +7,7 @@ public interface ServiceTemplate {
     void stop();
 
     ServiceStatus getStatus();
+
+    // New method to integrate the database
+    DatabaseIntegration getDatabaseIntegration();
 }

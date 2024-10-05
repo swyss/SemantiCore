@@ -1,4 +1,4 @@
-package com.semanticore.app.semanticorebackend.core.services.utilities;
+package com.semanticore.app.semanticorebackend.core.utilities;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
