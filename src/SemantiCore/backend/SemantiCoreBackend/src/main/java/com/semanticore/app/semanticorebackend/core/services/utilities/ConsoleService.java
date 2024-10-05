@@ -2,58 +2,69 @@ package com.semanticore.app.semanticorebackend.core.services.utilities;
 
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 
 @Service
 public class ConsoleService {
 
     private static final String SPINNER = "|/-\\"; // Spinner symbols
-    private static final int SPINNER_DELAY = 100; // Delay in milliseconds for spinner
-    private ScheduledExecutorService scheduler;
+    private volatile boolean running = false; // Used to stop the spinner
 
-    // Method to display a message with a rotating spinner in the console
+    // Method to display a message with a color
+    public void displayWithColor(String message, String color) {
+        System.out.println(applyColor(message, color));
+    }
+
     public void displayWithSpinner(String message, String color) {
-        scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            private int index = 0;
+        running = true; // Start the spinner
+        System.out.print(applyColor(message, color));
 
-            @Override
-            public void run() {
-                System.out.print("\r" + applyColor(SPINNER.charAt(index % SPINNER.length()) + " " + message, color));
-                index++;
+        new Thread(() -> {
+            int i = 0;
+            while (running) {
+                System.out.print("\r" + applyColor(SPINNER.charAt(i % SPINNER.length()) + " " + message, color));
+                i++;
+                try {
+                    Thread.sleep(100); // Spinner speed
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
-        }, 0, SPINNER_DELAY, TimeUnit.MILLISECONDS);
+        }).start();
     }
 
-    // Method to stop the spinner
     public void stopSpinner() {
-        if (scheduler != null) {
-            scheduler.shutdownNow();  // Stop the spinner thread
-            System.out.println();  // Move to the next line after spinner is stopped
-        }
+        running = false; // Stop the spinner
+        System.out.print("\r"); // Clear spinner line
     }
 
-    // Method to display a success message with a checkmark
     public void displaySuccess(String message, String color) {
+        stopSpinner(); // Stop the spinner when successful
         System.out.println(applyColor("[✔] " + message, color));
     }
 
-    // Method to display an error message with a cross symbol
     public void displayError(String message, String color) {
+        stopSpinner(); // Stop the spinner if there's an error
         System.out.println(applyColor("[✘] " + message, color));
     }
 
-    // Apply color to the message
     private String applyColor(String message, String color) {
-        return switch (color.toLowerCase()) {
-            case "yellow" -> "\033[0;33m" + message + "\033[0m"; // Yellow color
-            case "green" -> "\033[0;32m" + message + "\033[0m"; // Green color
-            case "red" -> "\033[0;31m" + message + "\033[0m"; // Red color
-            case "blue" -> "\033[0;34m" + message + "\033[0m"; // Blue color
-            default -> message; // Default: No color
-        };
+        switch (color.toLowerCase()) {
+            case "yellow":
+                return "\033[0;33m" + message + "\033[0m";
+            case "green":
+                return "\033[0;32m" + message + "\033[0m";
+            case "red":
+                return "\033[0;31m" + message + "\033[0m";
+            case "blue":
+                return "\033[0;34m" + message + "\033[0m";
+            case "cyan":
+                return "\033[0;36m" + message + "\033[0m";
+            case "magenta":
+                return "\033[0;35m" + message + "\033[0m";
+            case "white":
+                return "\033[0;37m" + message + "\033[0m";
+            default:
+                return message; // No color
+        }
     }
 }

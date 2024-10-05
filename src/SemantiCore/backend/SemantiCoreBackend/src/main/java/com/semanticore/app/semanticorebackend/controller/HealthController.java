@@ -1,11 +1,7 @@
 package com.semanticore.app.semanticorebackend.controller;
 
-import com.semanticore.app.semanticorebackend.core.services.ConfigurationLoaderService;
-import com.semanticore.app.semanticorebackend.core.services.ServiceHealthChecker;
-import com.semanticore.app.semanticorebackend.core.starter.StarterService;
-import com.semanticore.app.semanticorebackend.modules.data.DataIntegrationService;
-import com.semanticore.app.semanticorebackend.modules.monitoring.MonitoringService;
-import com.semanticore.app.semanticorebackend.modules.oee.OEECalculationService;
+import com.semanticore.app.semanticorebackend.core.services.helper.ServiceHelper;
+import com.semanticore.app.semanticorebackend.core.services.utilities.LoggingUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,45 +16,32 @@ import java.util.Map;
 @RequestMapping("/api/health")
 public class HealthController {
 
-    private final ConfigurationLoaderService configurationLoaderService;
-    private final DataIntegrationService dataIntegrationService;
-    private final MonitoringService monitoringService;
-    private final OEECalculationService oeeCalculationService;
-    private final StarterService starterService;
+    private final ServiceHelper serviceHelper;
+    private final LoggingUtility loggingUtility;
 
     @Autowired
-    public HealthController(ServiceHealthChecker serviceHealthChecker,
-                            ConfigurationLoaderService configurationLoaderService,
-                            DataIntegrationService dataIntegrationService,
-                            MonitoringService monitoringService,
-                            OEECalculationService oeeCalculationService,
-                            StarterService starterService) {
-        this.configurationLoaderService = configurationLoaderService;
-        this.dataIntegrationService = dataIntegrationService;
-        this.monitoringService = monitoringService;
-        this.oeeCalculationService = oeeCalculationService;
-        this.starterService = starterService;
+    public HealthController(ServiceHelper serviceHelper, LoggingUtility loggingUtility) {
+        this.serviceHelper = serviceHelper;
+        this.loggingUtility = loggingUtility;
     }
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> checkHealth() {
-        Map<String, Object> healthStatus = new HashMap<>();
+        Map<String, Object> healthStatus = new HashMap<>();  // Map for holding service health data
+        loggingUtility.logInfo("Health check initiated.");
 
-        // Example: Checking service health using ServiceHealthChecker
         try {
-            starterService.checkAllServicesStatus();  // Check the status of all services
+            // Use ServiceHelper to check all service statuses
+            loggingUtility.logInfo("Using ServiceHelper to check the status of all services.");
+            healthStatus.putAll(serviceHelper.checkAllServicesStatus());
 
-            // Simulate status based on the fact that configuration is validated
-            configurationLoaderService.validateConfiguration();
-            healthStatus.put("ConfigurationLoaderService", "Valid");
-
-            healthStatus.put("DataIntegrationService", dataIntegrationService.getStatus());
-            healthStatus.put("MonitoringService", monitoringService.getStatus());
-            healthStatus.put("OEECalculationService", oeeCalculationService.getStatus());
+            loggingUtility.logInfo("All services status successfully retrieved.");
         } catch (Exception e) {
+            loggingUtility.logError("Error during health check: " + e.getMessage());
             healthStatus.put("error", e.getMessage());
         }
 
+        loggingUtility.logInfo("Health check completed.");
         return new ResponseEntity<>(healthStatus, HttpStatus.OK);
     }
 }
